@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ToxiSense AI</title>
+    <link rel="stylesheet" href="./popup.css" />
+  </head>
+  <body>
+    <main class="popup">
+      <!-- Header copy and brand -->
+      <section class="hero">
+        <img
+          class="brand-icon"
+          src="../icons/3d25b701-3575-4be6-9ac7-8b9380615b2f.svg"
+          alt="ToxiSense AI icon"
+        />
+        <p class="eyebrow">Always-on browser protection</p>
+        <h1>ToxiSense AI</h1>
+        <p class="subtitle">
+          Browse with a calmer feed. ToxiSense quietly watches public conversations and
+          softens harmful content before it takes over your screen.
+        </p>
+        <div id="stateBadge" class="state-badge" data-state="on" hidden>Protection is on</div>
+      </section>
+
+      <!-- Main on/off control -->
+      <section class="panel panel-toggle">
+        <div class="panel-copy">
+          <h2>Smart Shield</h2>
+          <p>
+            Keep the extension running automatically while you browse YouTube, Reddit, X,
+            and other text-heavy pages.
+          </p>
+        </div>
+
+        <label class="switch" for="enabled" aria-label="Toggle ToxiSense protection">
+          <input id="enabled" type="checkbox" />
+          <span class="switch-track">
+            <span class="switch-thumb"></span>
+          </span>
+        </label>
+      </section>
+
+      <!-- Moderation mode selection -->
+      <section class="panel">
+        <label class="field" for="mode">
+          <span class="field-title">Response style</span>
+          <span class="field-copy">
+            Choose how flagged content should appear whenever ToxiSense detects bullying.
+          </span>
+          <select id="mode">
+            <option value="hide">Hide</option>
+            <option value="blur">Blur</option>
+            <option value="highlight">Highlight</option>
+          </select>
+        </label>
+
+        <div class="mode-notes">
+          <p><strong>Hide</strong> keeps the page cleaner and quieter.</p>
+          <p><strong>Blur</strong> reduces the impact while keeping context available.</p>
+          <p><strong>Highlight</strong> is useful for demos, research, and review.</p>
+        </div>
+      </section>
+
+      <!-- Small helper note for the popup footer -->
+      <section class="footer-copy">
+        <p class="footer-note">
+          No manual scan needed. When the shield is on, ToxiSense runs automatically in
+          the background as you surf the web.
+        </p>
+        <p id="status" class="status" aria-live="polite"></p>
+      </section>
+    </main>
+
+    <script src="../config.js"></script>
+    <script src="./popup.js"></script>
+  </body>
+</html>

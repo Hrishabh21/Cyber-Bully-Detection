@@ -1,0 +1,31 @@
+/* Hide mode removes the flagged block from view. */
+.toxisense-hidden {
+  display: none !important;
+}
+
+/* Blur mode softens the text but still lets the user inspect it on hover. */
+.toxisense-blurred {
+  filter: blur(7px) !important;
+  user-select: none !important;
+  transition: filter 0.2s ease-in-out;
+}
+
+.toxisense-blurred:hover {
+  filter: blur(0) !important;
+}
+
+.toxisense-highlighted {
+  outline: 2px solid #d93025 !important;
+  background: rgba(217, 48, 37, 0.14) !important;
+  border-radius: 6px !important;
+}
+
+/* Aggressive cases get a slightly stronger visual treatment. */
+[data-toxisense-severity="aggressive"].toxisense-highlighted {
+  outline-color: #b00020 !important;
+  background: rgba(176, 0, 32, 0.16) !important;
+}
+
+[data-toxisense-severity="aggressive"].toxisense-blurred {
+  filter: blur(9px) !important;
+}

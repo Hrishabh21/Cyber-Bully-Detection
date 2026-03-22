@@ -1,0 +1,38 @@
+{
+  "manifest_version": 3,
+  "name": "ToxiSense AI",
+  "version": "1.0.0",
+  "description": "Detects cyberbullying content on webpages and hides, blurs, or highlights it using a local AI API.",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "http://127.0.0.1:5000/*",
+    "http://localhost:5000/*",
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "ToxiSense AI",
+    "default_popup": "popup/popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "config.js",
+        "utils/helpers.js",
+        "utils/api.js",
+        "content.js"
+      ],
+      "css": [
+        "styles/content.css"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}
