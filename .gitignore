@@ -1,0 +1,8 @@
+saved models/
+backend/server.out.log
+backend/server.err.log
+chrome-dev-profile/
+backend/__pycache__/
+*.pyc
+.env
+.env.*

@@ -10,12 +10,14 @@ window.TOXISENSE_CONFIG = Object.freeze({
     enabled: "toxisenseEnabled"
   }),
   selectors: Object.freeze([
+    "article[data-testid='tweet'] [data-testid='tweetText']",
     "ytd-comment-thread-renderer #content-text",
     "ytd-comment-view-model #content-text",
     "[data-testid='comment']",
     "[data-test-id='comment']",
     "shreddit-comment [slot='comment']",
     "[data-testid='tweetText']",
+    "article[data-testid='tweet'] [lang]",
     "article [lang]",
     "main p",
     "article p"

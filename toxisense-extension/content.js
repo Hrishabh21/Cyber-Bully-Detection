@@ -9,16 +9,26 @@
   let isEnabled = true;
   let observer = null;
   const queuedElements = new Set();
+  let statusIndicator = null;
+  const moderationStats = {
+    analyzed: 0,
+    flagged: 0,
+    lastScanCandidates: 0
+  };
 
   // Load saved settings before we start scanning the page.
   async function initialize() {
+    ensureStatusIndicator();
     const settings = await loadSettings();
     currentMode = settings.mode;
     isEnabled = settings.enabled;
 
     if (isEnabled) {
+      setStatus("Scanning page...", "active");
       startObserver();
       await scanDocument(document);
+    } else {
+      setStatus("Protection off", "idle");
     }
   }
 
@@ -47,10 +57,14 @@
     const candidates = collectCandidates(root);
 
     if (!candidates.length) {
+      setStatus("Active, nothing to scan here yet", "idle");
       return;
     }
 
+    moderationStats.lastScanCandidates = candidates.length;
+    setStatus(`Scanning ${candidates.length} text block${candidates.length === 1 ? "" : "s"}...`, "active");
     await runWithConcurrency(candidates, 4, analyzeElement);
+    updateStatusSummary();
   }
 
   async function analyzeElement(element) {
@@ -82,11 +96,14 @@
     try {
       const result = await predictText(text);
       element.dataset.toxisenseHash = nextHash;
+      moderationStats.analyzed += 1;
 
       if (result.isBullying) {
         element.dataset.toxisenseState = "bullying";
         element.dataset.toxisenseSeverity = result.severity || "";
         applyMode(element, currentMode, result.severity);
+        moderationStats.flagged += 1;
+        updateStatusSummary();
       } else {
         element.dataset.toxisenseState = "clean";
         element.dataset.toxisenseSeverity = "";
@@ -193,6 +210,11 @@
     document.querySelectorAll("[data-toxisense-state]").forEach((element) => {
       clearModerationClasses(element);
     });
+
+    moderationStats.analyzed = 0;
+    moderationStats.flagged = 0;
+    moderationStats.lastScanCandidates = 0;
+    setStatus("Protection off", "idle");
   }
 
   function reapplyCurrentMode() {
@@ -222,12 +244,68 @@
     }
 
     if (!wasEnabled) {
+      setStatus("Protection on, scanning...", "active");
       startObserver();
       await scanDocument(document);
       return;
     }
 
     reapplyCurrentMode();
+    updateStatusSummary();
+  }
+
+  function ensureStatusIndicator() {
+    if (statusIndicator || !document.body) {
+      return;
+    }
+
+    statusIndicator = document.createElement("div");
+    statusIndicator.className = "toxisense-status-indicator";
+    statusIndicator.dataset.state = "idle";
+    statusIndicator.textContent = "ToxiSense ready";
+    document.body.appendChild(statusIndicator);
+  }
+
+  function setStatus(message, state = "idle") {
+    ensureStatusIndicator();
+
+    if (!statusIndicator) {
+      return;
+    }
+
+    statusIndicator.dataset.state = state;
+    statusIndicator.textContent = `ToxiSense: ${message}`;
+  }
+
+  function updateStatusSummary() {
+    ensureStatusIndicator();
+
+    if (!statusIndicator) {
+      return;
+    }
+
+    if (!isEnabled) {
+      setStatus("Protection off", "idle");
+      return;
+    }
+
+    if (moderationStats.flagged > 0) {
+      setStatus(
+        `Active, checked ${moderationStats.analyzed}, flagged ${moderationStats.flagged}`,
+        "warning"
+      );
+      return;
+    }
+
+    if (moderationStats.analyzed > 0) {
+      setStatus(
+        `Active, checked ${moderationStats.analyzed}, no toxic text found`,
+        "ok"
+      );
+      return;
+    }
+
+    setStatus("Active, waiting for page content", "idle");
   }
 
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {

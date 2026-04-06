@@ -48,14 +48,32 @@ window.ToxiSenseHelpers = (() => {
     return text.length >= window.TOXISENSE_CONFIG.minTextLength;
   }
 
+  function addCandidateIfValid(elements, element) {
+    if (element && shouldAnalyzeElement(element)) {
+      elements.add(element);
+    }
+  }
+
+  function collectMatchingAncestors(element, elements) {
+    let current = element;
+
+    while (current && current !== document.documentElement) {
+      if (matchesCandidate(current)) {
+        addCandidateIfValid(elements, current);
+      }
+
+      current = current.parentElement;
+    }
+  }
+
   function collectCandidates(root = document) {
     const source = root instanceof Document ? root : root.ownerDocument || document;
     const scope = root instanceof Element || root instanceof DocumentFragment ? root : source;
     const elements = new Set();
 
-    // Include the root itself when the observer gives us a matching node.
-    if (root instanceof Element && matchesCandidate(root) && shouldAnalyzeElement(root)) {
-      elements.add(root);
+    // Include matching ancestors so text-node updates inside a post still rescan the post body.
+    if (root instanceof Element) {
+      collectMatchingAncestors(root, elements);
     }
 
     window.TOXISENSE_CONFIG.selectors.forEach((selector) => {
@@ -64,9 +82,7 @@ window.ToxiSenseHelpers = (() => {
       }
 
       scope.querySelectorAll(selector).forEach((element) => {
-        if (shouldAnalyzeElement(element)) {
-          elements.add(element);
-        }
+        addCandidateIfValid(elements, element);
       });
     });
 
