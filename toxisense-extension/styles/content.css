@@ -20,6 +20,28 @@
   border-radius: 6px !important;
 }
 
+/*
+  Test-only scan marker.
+  This highlights every block that actually reaches the extension scanner so we
+  can verify selector coverage and understand why some visible text is not being
+  tested yet. The moderation classes still apply on top when content is flagged.
+*/
+/* .toxisense-scanned {
+  outline: 2px dashed #1a73e8 !important;
+  outline-offset: 2px !important;
+  background: rgba(26, 115, 232, 0.08) !important;
+  border-radius: 6px !important;
+} */
+
+/* Keep the scan marker visible even when a flagged moderation style is active. */
+.toxisense-scanned.toxisense-highlighted {
+  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.35) !important;
+}
+
+.toxisense-scanned.toxisense-blurred {
+  outline-color: #5f6368 !important;
+}
+
 /* Aggressive cases get a slightly stronger visual treatment. */
 [data-toxisense-severity="aggressive"].toxisense-highlighted {
   outline-color: #b00020 !important;

@@ -1,6 +1,15 @@
 // This script runs on supported pages and keeps moderation in sync.
 (() => {
-  const { applyMode, clearModerationClasses, collectCandidates, debounce, hashText, trimText } =
+  const {
+    applyMode,
+    clearModerationClasses,
+    clearScanClasses,
+    collectCandidates,
+    debounce,
+    hashText,
+    markScannedElement,
+    trimText
+  } =
     window.ToxiSenseHelpers;
   const { predictText } = window.ToxiSenseApi;
   const { defaultMode, observerDelayMs, storageKeys } = window.TOXISENSE_CONFIG;
@@ -81,6 +90,11 @@
     const nextHash = hashText(text);
     const lastHash = element.dataset.toxisenseHash;
     const lastState = element.dataset.toxisenseState || "";
+
+    // Mark the element as "scanned" as soon as it passes the text checks.
+    // This makes debugging easier because we can see the real scan coverage
+    // instead of only seeing text that ended up being flagged.
+    markScannedElement(element);
 
     // Reuse the last result if the visible text has not changed.
     if (lastHash === nextHash && lastState) {
@@ -207,8 +221,11 @@
   function clearAllModeration() {
     queuedElements.clear();
 
-    document.querySelectorAll("[data-toxisense-state]").forEach((element) => {
+    document
+      .querySelectorAll("[data-toxisense-state], [data-toxisense-scanned]")
+      .forEach((element) => {
       clearModerationClasses(element);
+      clearScanClasses(element);
     });
 
     moderationStats.analyzed = 0;
